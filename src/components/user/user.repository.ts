@@ -78,15 +78,80 @@ export class UserRepository {
 	}
 
 	update(id: string, user: Partial<UserDto>) {
-		return this.prisma.user.update({
-			where: {
-				id,
-			},
-			data: user,
-			select: {
-				name: true,
-				email: true,
-			},
+		if (!(user.breakInterval || user.intervalsCount || user.workInterval)) {
+			return this.prisma.user.update({
+				where: {
+					id,
+				},
+				data: user,
+				select: {
+					name: true,
+					email: true,
+				},
+			})
+		}
+
+		return this.prisma.$transaction(async tx => {
+			const userToUpdate: Partial<UserDto> = {
+				...user,
+				breakInterval: undefined,
+				intervalsCount: undefined,
+				workInterval: undefined,
+			}
+
+			const updatedUser = await tx.user.update({
+				where: {
+					id,
+				},
+				data: userToUpdate,
+				select: {
+					name: true,
+					email: true,
+				},
+			})
+		})
+	}
+
+	updateSettings(id: string, user: Partial<UserDto>) {
+		return this.prisma.$transaction(async prisma => {
+			let userToUpdate: Partial<UserDto> = {
+				...user,
+				breakInterval: undefined,
+				intervalsCount: undefined,
+				workInterval: undefined,
+			}
+
+			const updatedUser = await prisma.user.update({
+				where: {
+					id,
+				},
+				data: userToUpdate,
+				select: {
+					name: true,
+					email: true,
+				},
+			})
+
+			userToUpdate = {
+				...user,
+				email: undefined,
+				name: undefined,
+				password: undefined,
+			}
+
+			const timer = await prisma.userTimer.update({
+				where: {
+					userId: id,
+				},
+				data: userToUpdate,
+				select: {
+					breakInterval: true,
+					intervalsCount: true,
+					workInterval: true,
+				},
+			})
+
+			return { updatedUser, timer }
 		})
 	}
 }

@@ -20,7 +20,7 @@ export class CurrentUserTasksController {
 	@Auth()
 	@Get()
 	findAll(@CurrentUser('id') userId: string) {
-		return this.tasksService.findByUserId(userId)
+		return this.tasksService.findAllByUserId(userId)
 	}
 
 	@Auth()
@@ -37,12 +37,12 @@ export class CurrentUserTasksController {
 		@Body() task: TaskDto,
 		@Param('id') taskId: string
 	) {
-		return this.tasksService.updateByTaskIdAndUserId(task, taskId, userId)
+		return this.tasksService.updateByIdAndUserId(task, taskId, userId)
 	}
 
 	@Auth()
 	@Delete(':id')
 	deleteById(@CurrentUser('id') userId: string, @Param('id') taskId: string) {
-		return this.tasksService.deleteByTaskIdAndUserId(taskId, userId)
+		return this.tasksService.deleteByIdAndUserId(taskId, userId)
 	}
 }

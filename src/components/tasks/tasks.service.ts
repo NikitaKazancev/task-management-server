@@ -6,8 +6,8 @@ import { TasksRepository } from './task.repository'
 export class TasksService {
 	constructor(private readonly tasksRepository: TasksRepository) {}
 
-	async findByUserId(userId: string) {
-		return await this.tasksRepository.findByUserId(userId)
+	async findAllByUserId(userId: string) {
+		return await this.tasksRepository.findAllByUserId(userId)
 	}
 
 	async findCompletedTasksAmountByUserId(userId: string) {
@@ -26,19 +26,15 @@ export class TasksService {
 		return await this.tasksRepository.createByUserId(task, userId)
 	}
 
-	async updateByTaskIdAndUserId(
-		task: TaskDto,
-		taskId: string,
-		userId: string
-	) {
-		return await this.tasksRepository.updateByTaskIdAndUserId(
+	async updateByIdAndUserId(task: TaskDto, taskId: string, userId: string) {
+		return await this.tasksRepository.updateByIdAndUserId(
 			task,
 			taskId,
 			userId
 		)
 	}
 
-	async deleteByTaskIdAndUserId(taskId: string, userId: string) {
-		return await this.tasksRepository.deleteByTaskIdAndUserId(taskId, userId)
+	async deleteByIdAndUserId(taskId: string, userId: string) {
+		return await this.tasksRepository.deleteByIdAndUserId(taskId, userId)
 	}
 }

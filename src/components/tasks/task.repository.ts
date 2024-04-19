@@ -7,7 +7,7 @@ import { TaskDto } from './dto/task.dto'
 export class TasksRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	findByUserId(userId: string) {
+	findAllByUserId(userId: string) {
 		return this.prisma.task.findMany({
 			where: { userId },
 		})
@@ -57,11 +57,7 @@ export class TasksRepository {
 		})
 	}
 
-	updateByTaskIdAndUserId(
-		task: Partial<TaskDto>,
-		taskId: string,
-		userId: string
-	) {
+	updateByIdAndUserId(task: Partial<TaskDto>, taskId: string, userId: string) {
 		return this.prisma.task.update({
 			data: task,
 			where: {
@@ -71,7 +67,7 @@ export class TasksRepository {
 		})
 	}
 
-	deleteByTaskIdAndUserId(taskId: string, userId: string) {
+	deleteByIdAndUserId(taskId: string, userId: string) {
 		return this.prisma.task.delete({
 			where: {
 				id: taskId,

@@ -54,6 +54,10 @@ export class UserService {
 			data = { ...data, password: await hash(data.password) }
 		}
 
-		return this.userRepository.update(userId, data)
+		if (!(user.breakInterval || user.intervalsCount || user.workInterval)) {
+			return this.userRepository.update(userId, data)
+		}
+
+		return this.userRepository.updateSettings(userId, data)
 	}
 }

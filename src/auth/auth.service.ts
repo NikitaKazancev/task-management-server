@@ -51,7 +51,7 @@ export class AuthService {
 		const data = { email }
 
 		const accessToken = this.jwtService.sign(data, {
-			expiresIn: '1h',
+			expiresIn: '1d',
 		})
 
 		const refreshToken = this.jwtService.sign(data, {
@@ -94,20 +94,25 @@ export class AuthService {
 		})
 	}
 
-	async getNewTokens(refreshToken: string) {
-		const result = await this.jwtService.verifyAsync(refreshToken)
-		if (!result) throw new UnauthorizedException('Invalid refresh token')
+	async getNewTokens(refreshToken: string, res: Response) {
+		try {
+			const result = await this.jwtService.verifyAsync(refreshToken)
+			if (!result) throw new UnauthorizedException('Invalid refresh token')
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { password, ...user } = await this.userService.findByEmail(
-			result.email
-		)
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { password, ...user } = await this.userService.findByEmail(
+				result.email
+			)
 
-		const tokens = this.issueTokens(user.email)
+			const tokens = this.issueTokens(user.email)
 
-		return {
-			user,
-			...tokens,
+			return {
+				user,
+				...tokens,
+			}
+		} catch (error) {
+			this.removeRefreshTokenFromResponse(res)
+			throw new UnauthorizedException('Invalid refresh token')
 		}
 	}
 }
