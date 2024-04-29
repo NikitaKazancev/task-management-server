@@ -1,5 +1,6 @@
 generator client {
-   provider = "prisma-client-js"
+   provider      = "prisma-client-js"
+   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -15,6 +16,7 @@ model User {
    email    String  @unique
    name     String?
    password String
+   role     Role    @default(USER)
 
    tasks            Task[]
    userTimer        UserTimer?
@@ -22,6 +24,11 @@ model User {
    pomodoroSessions PomodoroSession[]
 
    @@map("users")
+}
+
+enum Role {
+   USER
+   ADMIN
 }
 
 model UserTimer {
@@ -50,7 +57,7 @@ model Task {
    priority    Priority?
    isCompleted Boolean?  @default(false) @map("is_completed")
 
-   user   User   @relation(fields: [userId], references: [id])
+   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId String @map("user_id")
 
    @@map("tasks")
@@ -66,7 +73,7 @@ model TimeBlock {
    duration Int
    order    Int     @default(1)
 
-   user   User   @relation(fields: [userId], references: [id])
+   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId String @map("user_id")
 
    @@map("time_blocks")
@@ -79,7 +86,7 @@ model PomodoroSession {
 
    isCompleted Boolean? @default(false) @map("is_completed")
 
-   user   User   @relation(fields: [userId], references: [id])
+   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId String @map("user_id")
 
    rounds PomodoroRound[]

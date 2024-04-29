@@ -10,6 +10,18 @@ export class UserRepository {
 		private readonly tasksRepository: TasksRepository
 	) {}
 
+	findAll() {
+		return this.prisma.user.findMany()
+	}
+
+	findById(userId: string) {
+		return this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+		})
+	}
+
 	findByEmail(email: string) {
 		return this.prisma.user.findUnique({
 			where: {
@@ -152,6 +164,14 @@ export class UserRepository {
 			})
 
 			return { updatedUser, timer }
+		})
+	}
+
+	deleteById(userId: string) {
+		return this.prisma.user.delete({
+			where: {
+				id: userId,
+			},
 		})
 	}
 }

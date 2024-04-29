@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { Role } from '@prisma/client'
 import { verify } from 'argon2'
 import { Response } from 'express'
 import { UserService } from 'src/components/user/user.service'
@@ -25,7 +26,7 @@ export class AuthService {
 
 	async login(dto: AuthDto) {
 		const { password, ...user } = await this.validateUser(dto)
-		const tokens = this.issueTokens(user.email)
+		const tokens = this.issueTokens(user.email, user.role)
 
 		return {
 			user,
@@ -39,7 +40,7 @@ export class AuthService {
 
 		const { createdUser: user, timer } = await this.userService.create(dto)
 
-		const tokens = this.issueTokens(user.email)
+		const tokens = this.issueTokens(user.email, user.role)
 
 		return {
 			user: { ...user, timer },
@@ -47,8 +48,8 @@ export class AuthService {
 		}
 	}
 
-	private issueTokens(email: string) {
-		const data = { email }
+	private issueTokens(email: string, role: Role) {
+		const data = { email, role }
 
 		const accessToken = this.jwtService.sign(data, {
 			expiresIn: '1d',
@@ -79,7 +80,7 @@ export class AuthService {
 			httpOnly: true,
 			domain: this.DOMAIN,
 			expires: expiresIn,
-			secure: true,
+			// secure: true,
 			sameSite: 'lax',
 		})
 	}
@@ -89,7 +90,7 @@ export class AuthService {
 			httpOnly: true,
 			domain: this.DOMAIN,
 			expires: new Date(0),
-			secure: true,
+			// secure: true,
 			sameSite: 'lax',
 		})
 	}
@@ -104,7 +105,7 @@ export class AuthService {
 				result.email
 			)
 
-			const tokens = this.issueTokens(user.email)
+			const tokens = this.issueTokens(user.email, user.role)
 
 			return {
 				user,
